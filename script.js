@@ -4,19 +4,39 @@
 let firstNum = '';
 let operator = '';
 let secondNum = '';
-let exprDisplay = '';
-let finalOprResult = '';
-let oprPattern = /[+\-\^\x\/]/g;
+let exprDisplay = ''; // To keep and monitor the entered numbers and operators
+let oprPattern = /[+-^x/]/g; // For changing the last operator
 
 const showExp = document.querySelector('.display-expression');
 const showResult = document.querySelector('.display-result');
-const outerTopEl = document.querySelector('.layout-top');
 const keyClearEl = document.querySelector('.key-clear');
 const keyDelEl = document.querySelector('.key-del');
 const keyEqualEl = document.querySelector('.key-equal');
 const keySignEl = document.querySelector('.key-sign');
 const keyDecEl = document.querySelector('.key-dec');
 const keySqrtEl = document.querySelector('.key-sqrt');
+
+const operate = (a, b, op) => op(+a, +b);
+
+const addFn = (a, b) => a + b;
+
+const subFn = (a, b) => a - b;
+
+const multiplyFn = (a, b) => a * b;
+
+const divideFn = (a, b) => a / b;
+
+const expFn = (a, b) => a ** b;
+
+const sqrtFn = (a) => Math.sqrt(+a);
+
+const changeSignFn = (a) => +a * -1;
+
+const toggleEnabling = function () {
+    op2El.forEach((el) => {
+        el.disabled = !el.disabled;
+    });
+};
 
 // Math Operators that accept two operands (+, - , * , /, ^)
 const op2El = document.querySelectorAll('.op2');
@@ -25,16 +45,16 @@ op2El.forEach((op2) => {
         operator = op2.value;
         // Check if firstNum is given or not
         if (firstNum && !secondNum) {
-            finalOprResult = firstNum;
-            showResult.textContent = finalOprResult;
-            // if (firstNum.includes('√')) {
-            //     let num = firstNum.split(' ').slice(-1)[0];
-            //     firstNum = sqrtFn(num);
-            //     exprDisplay += `${firstNum} ${operator} `;
-            //     showExp.textContent = exprDisplay;
-            // }
-
-            if (exprDisplay === '') {
+            showResult.textContent = firstNum;
+            if (firstNum.toString().includes('√')) {
+                let num = sqrtFn(firstNum.split(' ').slice(-1)[0]);
+                firstNum = num;
+                exprDisplay += `${firstNum} ${operator} `;
+                showExp.textContent = exprDisplay;
+            } else if (
+                firstNum.toString().includes('√') === false &&
+                exprDisplay === ''
+            ) {
                 exprDisplay += `${firstNum} ${operator} `;
                 showExp.textContent = exprDisplay;
             } else if (exprDisplay.includes('=')) {
@@ -51,46 +71,93 @@ op2El.forEach((op2) => {
                 showExp.textContent = exprDisplay;
             }
         } else if (firstNum && secondNum) {
-            // Always operate the first operation first, do it by extracting the last operator from the expression
-            let firstOperator = exprDisplay.trim().split('').slice(-1)[0];
-            if (firstOperator === '+') {
-                finalOprResult = operate(firstNum, secondNum, addFn);
-                // Now, you need to store the result to the firstNum to keep track of the operation result
-                firstNum = finalOprResult;
-                showResult.textContent = firstNum;
-                // Show the expression every after the operator is pressed
+            // Check if second num has square root
+            if (secondNum.toString().includes('√')) {
+                let num = sqrtFn(secondNum.split(' ').slice(-1)[0]);
+                secondNum = num;
                 exprDisplay += `${secondNum} ${operator} `;
                 showExp.textContent = exprDisplay;
-                // You need to make second num no value
-                secondNum = '';
-            } else if (firstOperator === '-') {
-                finalOprResult = operate(firstNum, secondNum, subFn);
-                firstNum = finalOprResult;
-                showResult.textContent = firstNum;
-                exprDisplay += `${secondNum} ${operator} `;
-                showExp.textContent = exprDisplay;
-                secondNum = '';
-            } else if (firstOperator === '^') {
-                finalOprResult = operate(firstNum, secondNum, expFn);
-                firstNum = finalOprResult;
-                showResult.textContent = firstNum;
-                exprDisplay += `${secondNum} ${operator} `;
-                showExp.textContent = exprDisplay;
-                secondNum = '';
-            } else if (firstOperator === 'x') {
-                finalOprResult = operate(firstNum, secondNum, multiplyFn);
-                firstNum = finalOprResult;
-                showResult.textContent = firstNum;
-                exprDisplay += `${secondNum} ${operator} `;
-                showExp.textContent = exprDisplay;
-                secondNum = '';
-            } else if (firstOperator === '/') {
-                finalOprResult = operate(firstNum, secondNum, divideFn);
-                firstNum = finalOprResult;
-                showResult.textContent = firstNum;
-                exprDisplay += `${secondNum} ${operator} `;
-                showExp.textContent = exprDisplay;
-                secondNum = '';
+                console.log(
+                    `second num ${secondNum},  exprs display ${exprDisplay}`
+                );
+                // Now operate the first two operands with the first operator
+                let firstOperator = exprDisplay
+                    .trim()
+                    .split(' ')
+                    .slice(1, 2)[0];
+                // Check what operator
+                if (firstOperator === '+') {
+                    firstNum = operate(firstNum, secondNum, addFn);
+                    // Now, you need to store the result to the firstNum to keep track of the operation result
+                    showResult.textContent = firstNum;
+                    // Show the expression every after the operator is pressed
+                    exprDisplay = `${firstNum} ${operator} `;
+                    showExp.textContent = exprDisplay;
+                    // You need to make second num no value
+                    secondNum = '';
+                } else if (firstOperator === '-') {
+                    firstNum = operate(firstNum, secondNum, subFn);
+                    showResult.textContent = firstNum;
+                    exprDisplay = `${firstNum} ${operator} `;
+                    showExp.textContent = exprDisplay;
+                    secondNum = '';
+                } else if (firstOperator === '^') {
+                    firstNum = operate(firstNum, secondNum, expFn);
+                    showResult.textContent = firstNum;
+                    exprDisplay = `${firstNum} ${operator} `;
+                    showExp.textContent = exprDisplay;
+                    secondNum = '';
+                } else if (firstOperator === 'x') {
+                    firstNum = operate(firstNum, secondNum, multiplyFn);
+                    showResult.textContent = firstNum;
+                    exprDisplay = `${firstNum} ${operator} `;
+                    showExp.textContent = exprDisplay;
+                    secondNum = '';
+                } else if (firstOperator === '/') {
+                    firstNum = operate(firstNum, secondNum, divideFn);
+                    showResult.textContent = firstNum;
+                    exprDisplay = `${firstNum} ${operator} `;
+                    showExp.textContent = exprDisplay;
+                    secondNum = '';
+                }
+            } else if (secondNum.includes('√') === false) {
+                // Always operate the first operation first, do it by extracting the last operator from the expression
+                let firstOperator = exprDisplay.trim().split('').slice(-1)[0];
+                if (firstOperator === '+') {
+                    // Now, you need to store the result to the firstNum to keep track of the operation result
+                    firstNum = operate(firstNum, secondNum, addFn);
+
+                    showResult.textContent = firstNum;
+                    // Show the expression every after the operator is pressed
+                    exprDisplay += `${secondNum} ${operator} `;
+                    showExp.textContent = exprDisplay;
+                    // You need to make second num no value
+                    secondNum = '';
+                } else if (firstOperator === '-') {
+                    firstNum = operate(firstNum, secondNum, subFn);
+                    showResult.textContent = firstNum;
+                    exprDisplay += `${secondNum} ${operator} `;
+                    showExp.textContent = exprDisplay;
+                    secondNum = '';
+                } else if (firstOperator === '^') {
+                    firstNum = operate(firstNum, secondNum, expFn);
+                    showResult.textContent = firstNum;
+                    exprDisplay += `${secondNum} ${operator} `;
+                    showExp.textContent = exprDisplay;
+                    secondNum = '';
+                } else if (firstOperator === 'x') {
+                    firstNum = operate(firstNum, secondNum, multiplyFn);
+                    showResult.textContent = firstNum;
+                    exprDisplay += `${secondNum} ${operator} `;
+                    showExp.textContent = exprDisplay;
+                    secondNum = '';
+                } else if (firstOperator === '/') {
+                    firstNum = operate(firstNum, secondNum, divideFn);
+                    showResult.textContent = firstNum;
+                    exprDisplay += `${secondNum} ${operator} `;
+                    showExp.textContent = exprDisplay;
+                    secondNum = '';
+                }
             }
         }
     });
@@ -98,65 +165,114 @@ op2El.forEach((op2) => {
 
 // Equals operator
 keyEqualEl.addEventListener('click', function () {
+    if (firstNum && firstNum.toString().includes('√')) {
+        let num = sqrtFn(firstNum.split(' ').slice(-1)[0]);
+        firstNum = num;
+        showResult.textContent = firstNum;
+    }
+
     if (firstNum && secondNum) {
-        // Always operate the first operation first, do it by extracting the last operator from the expression
-        // let firstOperator = exprDisplay.trim().split('').slice(-1)[0];
-        if (operator === '+') {
-            finalOprResult = operate(firstNum, secondNum, addFn);
-            // Now, you need to store the result to the firstNum to keep track of the operation result
-            firstNum = finalOprResult;
-            showResult.textContent = firstNum;
-            // Show the expression every after the operator is pressed
-            exprDisplay += `${secondNum} = ${firstNum}`;
-            showExp.textContent = exprDisplay;
-            // You need to make second num no value
-            secondNum = '';
-            operator = '';
-        } else if (operator === '-') {
-            finalOprResult = operate(firstNum, secondNum, subFn);
-            firstNum = finalOprResult;
-            showResult.textContent = firstNum;
-            exprDisplay += `${secondNum} = ${firstNum}`;
-            showExp.textContent = exprDisplay;
-            secondNum = '';
-            operator = '';
-        } else if (operator === '^') {
-            finalOprResult = operate(firstNum, secondNum, expFn);
-            firstNum = finalOprResult;
-            showResult.textContent = firstNum;
-            exprDisplay += `${secondNum} = ${firstNum}`;
-            showExp.textContent = exprDisplay;
-            secondNum = '';
-            operator = '';
-        } else if (operator === 'x') {
-            finalOprResult = operate(firstNum, secondNum, multiplyFn);
-            firstNum = finalOprResult;
-            showResult.textContent = firstNum;
-            exprDisplay += `${secondNum} = ${firstNum}`;
-            showExp.textContent = exprDisplay;
-            secondNum = '';
-            operator = '';
-        } else if (operator === '/') {
-            finalOprResult = operate(firstNum, secondNum, divideFn);
-            firstNum = finalOprResult;
-            showResult.textContent = firstNum;
-            exprDisplay += `${secondNum} = ${firstNum}`;
-            showExp.textContent = exprDisplay;
-            secondNum = '';
-            operator = '';
+        if (secondNum.toString().includes('√')) {
+            let num = sqrtFn(secondNum.split(' ').slice(-1)[0]);
+            secondNum = num;
+            if (operator === '+') {
+                // Now, you need to store the result to the firstNum to keep track of the operation result
+                firstNum = operate(firstNum, secondNum, addFn);
+                showResult.textContent = firstNum;
+                // Show the expression every after the operator is pressed
+                exprDisplay += `${secondNum} = ${firstNum}`;
+                showExp.textContent = exprDisplay;
+                // You need to make second num no value
+                secondNum = '';
+                console.log(firstNum);
+                console.log(exprDisplay);
+            } else if (operator === '-') {
+                firstNum = operate(firstNum, secondNum, subFn);
+                showResult.textContent = firstNum;
+                exprDisplay += `${secondNum} = ${firstNum}`;
+                showExp.textContent = exprDisplay;
+                secondNum = '';
+                console.log(firstNum);
+            } else if (operator === '^') {
+                firstNum = operate(firstNum, secondNum, expFn);
+                showResult.textContent = firstNum;
+                exprDisplay += `${secondNum} = ${firstNum}`;
+                showExp.textContent = exprDisplay;
+                secondNum = '';
+                console.log(firstNum);
+            } else if (operator === 'x') {
+                firstNum = operate(firstNum, secondNum, multiplyFn);
+                showResult.textContent = firstNum;
+                exprDisplay += `${secondNum} = ${firstNum}`;
+                showExp.textContent = exprDisplay;
+                secondNum = '';
+                console.log(firstNum);
+            } else if (operator === '/') {
+                firstNum = operate(firstNum, secondNum, divideFn);
+                showResult.textContent = firstNum;
+                exprDisplay += `${secondNum} = ${firstNum}`;
+                showExp.textContent = exprDisplay;
+                secondNum = '';
+                console.log(firstNum);
+            }
+            console.log(firstNum);
+        } else if (secondNum.toString().includes('√') == false) {
+            if (operator === '+') {
+                // Now, you need to store the result to the firstNum to keep track of the operation result
+                firstNum = operate(firstNum, secondNum, addFn);
+                showResult.textContent = firstNum;
+                // Show the expression every after the operator is pressed
+                exprDisplay += `${secondNum} = ${firstNum}`;
+                showExp.textContent = exprDisplay;
+                // You need to make second num no value
+                secondNum = '';
+                operator = '';
+            } else if (operator === '-') {
+                firstNum = operate(firstNum, secondNum, subFn);
+                showResult.textContent = firstNum;
+                exprDisplay += `${secondNum} = ${firstNum}`;
+                showExp.textContent = exprDisplay;
+                secondNum = '';
+                operator = '';
+            } else if (operator === '^') {
+                firstNum = operate(firstNum, secondNum, expFn);
+                showResult.textContent = firstNum;
+                exprDisplay += `${secondNum} = ${firstNum}`;
+                showExp.textContent = exprDisplay;
+                secondNum = '';
+                operator = '';
+            } else if (operator === 'x') {
+                firstNum = operate(firstNum, secondNum, multiplyFn);
+                showResult.textContent = firstNum;
+                exprDisplay += `${secondNum} = ${firstNum}`;
+                showExp.textContent = exprDisplay;
+                secondNum = '';
+                operator = '';
+            } else if (operator === '/') {
+                firstNum = operate(firstNum, secondNum, divideFn);
+                showResult.textContent = firstNum;
+                exprDisplay += `${secondNum} = ${firstNum}`;
+                showExp.textContent = exprDisplay;
+                secondNum = '';
+                operator = '';
+            }
         }
     }
 });
 
 // Square root
 keySqrtEl.addEventListener('click', function () {
-    if (!firstNum) {
-        firstNum += `√ `;
-        op2El.forEach((el) => (el.disabled = true));
-        finalOprResult = firstNum;
-        showResult.textContent = finalOprResult;
+    if (operator) {
+        secondNum = `√ `;
+        toggleEnabling();
+        showResult.textContent = secondNum;
+    } else {
+        firstNum = `√ `;
+        toggleEnabling();
+        showResult.textContent = firstNum;
     }
-    console.log(firstNum);
+
+    toggleEnabling();
 });
 
 // Decimal point
@@ -177,44 +293,40 @@ keyDecEl.addEventListener('click', function () {
 // Math.sign
 keySignEl.addEventListener('click', function () {
     if (operator) {
-        finalOprResult = changeSignFn(secondNum);
-        showResult.textContent = finalOprResult;
-        secondNum = finalOprResult;
+        secondNum = changeSignFn(secondNum);
+        showResult.textContent = secondNum;
     } else {
-        finalOprResult = changeSignFn(firstNum);
-        showResult.textContent = finalOprResult;
-        firstNum = finalOprResult;
+        firstNum = changeSignFn(firstNum);
+        showResult.textContent = firstNum;
     }
 });
 
 // Get all the number keys and  event listener
 const keys = document.querySelectorAll('.key-num');
 keys.forEach((numKey) => {
+    toggleEnabling();
     numKey.addEventListener('click', () => {
         // check if operator is given, if so, set the number to secondNum
         if (operator) {
             secondNum += numKey.value;
-            finalOprResult = secondNum;
-            showResult.textContent = finalOprResult;
+            showResult.textContent = secondNum;
         } else {
             firstNum += numKey.value;
-            finalOprResult = firstNum;
-            showResult.textContent = finalOprResult;
-            // isOverflown(showResult) && (showResult.style.fontSize = '3.5rem');
-            console.log(firstNum);
+
+            showResult.textContent = firstNum;
         }
     });
+    toggleEnabling();
 });
 
 // Deleting one digit or erasing a digit
 keyDelEl.addEventListener('click', function () {
-    finalOprResult = finalOprResult.substring(0, finalOprResult.length - 1);
     // Check which num are you deleting or erasing a digit
-    if (secondNum) {
-        secondNum = finalOprResult;
+    if (operator) {
+        secondNum = secondNum.substring(0, secondNum.length - 1);
         showResult.textContent = secondNum;
     } else {
-        firstNum = finalOprResult;
+        firstNum = firstNum.substring(0, firstNum.length - 1);
         showResult.textContent = firstNum;
     }
 });
@@ -225,62 +337,6 @@ keyClearEl.addEventListener('click', function () {
     operator = '';
     secondNum = '';
     exprDisplay = '';
-    finalOprResult = '';
     showResult.textContent = '';
     showExp.textContent = '';
 });
-
-/*
-const isOverflown = (el) => {
-    return el.clientHeight > el.scrollHeight || el.clientWidth > el.scrollWidth;
-}; 
-
-const isOverflown = (el) => {
-    return el.offsetWidth >= outerTopEl.offsetWidth;
-};
-
-*/
-
-// const reduceFontSize = (el) => {
-//     let fontSize = el.style.font;
-// };
-
-const operate = function (n1, n2, op) {
-    let answer = op(+n1, +n2);
-    return answer;
-};
-
-// Add function
-const addFn = function (n1, n2) {
-    return n1 + n2;
-};
-
-// Subtraction function
-const subFn = function (n1, n2) {
-    return n1 - n2;
-};
-
-// Multiplication function
-const multiplyFn = function (n1, n2) {
-    return n1 * n2;
-};
-
-// Division function
-const divideFn = function (n1, n2) {
-    return n1 / n2;
-};
-
-// Exponential function
-const expFn = function (n1, n2) {
-    return n1 ** n2;
-};
-
-// Square root function
-const sqrtFn = function (n1) {
-    return Math.sqrt(+n1);
-};
-
-const changeSignFn = function (n1) {
-    let number = +n1;
-    return number * -1;
-};
