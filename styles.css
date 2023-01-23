@@ -1,0 +1,152 @@
+/*
+Guide, style by order (starting from the smallest)
+Element (font-size, margin, color, line-height, font-weight)
+Component (background, border, padding, box-shadow, grid layout or flex)
+
+----01 TYPOGRAPHY SYSTEM
+
+- font-sizes (px)
+10 / 12 / 14 / 16 / 18 / 20 / 24 / 30 / 36 / 44 / 52 / 62 / 74 / 86 / 98
+→ small screen: headline: 24px, content: 14px
+
+
+- line height
+default: 1
+small: 1.05
+Medium: 1.2
+Paragraph default: 1.6
+large: 1.8
+
+- font-weight: 
+400
+500
+600
+700
+
+- letter spacing
+0.5px
+0.75px
+
+
+- spacing (px)
+2 / 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 80 / 96 / 128
+
+- padding and margin
+Use em (based on parent container, can inherit)
+
+*/
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    font-size: 1.75rem;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(
+        90deg,
+        rgb(231, 231, 231),
+        rgb(205, 205, 185),
+        rgb(206, 206, 162)
+    );
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    place-items: center;
+    color: #fafafa;
+}
+
+main {
+    position: relative;
+    width: 40rem;
+    display: grid;
+    justify-items: center;
+}
+
+.layout-top {
+    background-color: #fff;
+    color: rgb(21, 21, 23);
+    height: 53rem;
+    width: 30rem;
+    box-shadow: 2rem 2rem 4rem #505055;
+    text-align: right;
+    font-weight: 100;
+}
+
+.display-top {
+    height: 12rem;
+    display: grid;
+    margin: 2rem;
+    overflow: hidden;
+}
+
+.display-expression {
+    font-size: 1.5rem;
+    font-weight: 400;
+    display: inherit;
+    align-items: end;
+    overflow-wrap: break-word;
+    padding: 0.5rem;
+    margin-bottom: -2rem;
+}
+
+.display-result {
+    font-size: 6rem;
+    color: rgb(21, 21, 23);
+    display: inherit;
+    align-items: end;
+    padding: 0.5rem;
+}
+
+.layout-center {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    padding: 2rem;
+    background: linear-gradient(
+        170deg,
+        rgba(116, 118, 134, 0.979),
+        rgb(21, 21, 23)
+    );
+    position: absolute;
+    z-index: 10;
+    top: 14rem;
+    box-shadow: 1rem 2rem 3rem #1d1d1e95;
+}
+
+.layout-center > input {
+    padding: 2.5rem;
+    color: inherit;
+    font-weight: 500;
+}
+
+.layout-center > input:hover {
+    background-color: rgba(21, 21, 23, 0.651);
+}
+
+input {
+    outline: none;
+    border: 0;
+    background: none;
+    font-size: inherit;
+}
+
+.key-equal {
+    background: linear-gradient(90deg, #ffb45f, #ff2929);
+    height: 7rem;
+    width: 30rem;
+    text-align: center;
+    color: inherit;
+    font-size: 3rem;
+    box-shadow: 1rem 1rem 2rem #474749a7;
+}
+
+.key-equal:hover,
+.key-equal:focus {
+    background: linear-gradient(90deg, #ecb26f, rgb(235, 81, 81));
+}
