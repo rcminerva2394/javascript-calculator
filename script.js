@@ -8,12 +8,25 @@ let oprPattern = /[+-^x/]/g; // to find the first operator from the string
 
 const showExp = document.querySelector('.display-expression');
 const showResult = document.querySelector('.display-result');
+const displayTopEl = document.querySelector('.display-top');
 const keyClearEl = document.querySelector('.key-clear');
 const keyDelEl = document.querySelector('.key-del');
 const keyEqualEl = document.querySelector('.key-equal');
 const keySignEl = document.querySelector('.key-sign');
 const keyDecEl = document.querySelector('.key-dec');
 const keySqrtEl = document.querySelector('.key-sqrt');
+
+const init = () => {
+    firstNum = '';
+    operator = '';
+    secondNum = '';
+    exprDisplay = '';
+    showResult.textContent = 0;
+    showExp.textContent = '';
+    keySqrtEl.disabled = false;
+};
+
+init();
 
 const operate = (a, b, op) => op(+a, +b);
 const addFn = (a, b) => a + b;
@@ -41,7 +54,7 @@ op2El.forEach((op2) => {
             // Check if first num has square root symbol
             if (firstNum.toString().includes('√')) {
                 let initialSqrtVal = firstNum;
-                firstNum = sqrtFn(firstNum.split(' ').slice(-1)[0]);
+                firstNum = sqrtFn(firstNum.split(' ')[0].slice(1));
                 exprDisplay += `${initialSqrtVal} ${operator} `;
                 showResult.textContent = firstNum;
             } else if (
@@ -60,21 +73,25 @@ op2El.forEach((op2) => {
                 exprDisplay = updatedExprDisplay;
             }
             showExp.textContent = exprDisplay;
-        } else if (firstNum && secondNum) {
+        }
+
+        if (firstNum && secondNum) {
             // Check if second num has square root
             if (secondNum.toString().includes('√')) {
                 let initialSqrtVal = secondNum; // To still show the square root val
-                secondNum = sqrtFn(secondNum.split(' ').slice(-1)[0]);
+                secondNum = sqrtFn(secondNum.slice(1));
                 exprDisplay += `${initialSqrtVal} ${operator} `;
-                showExp.textContent = exprDisplay;
+
                 // Now operate the first two operands with the first operator
                 let firstOperator = exprDisplay
                     .trim()
                     .split(' ')
                     .slice(1, 2)[0];
+                console.log(firstOperator);
                 // Check what operator and the result is kept to first num in order to track the current result of all operations applied
                 if (firstOperator === '+') {
                     firstNum = operate(firstNum, secondNum, addFn);
+                    console.log(firstNum);
                 } else if (firstOperator === '-') {
                     firstNum = operate(firstNum, secondNum, subFn);
                 } else if (firstOperator === '^') {
@@ -85,7 +102,9 @@ op2El.forEach((op2) => {
                     firstNum = operate(firstNum, secondNum, divideFn);
                 }
                 showResult.textContent = firstNum;
+                showExp.textContent = exprDisplay;
                 secondNum = '';
+                console.log(firstNum);
             } else if (secondNum.includes('√') === false) {
                 // Always operate the first operation first, do it by extracting the last operator from the expression
                 let firstOperator = exprDisplay.trim().split('').slice(-1)[0];
@@ -98,7 +117,12 @@ op2El.forEach((op2) => {
                 } else if (firstOperator === 'x') {
                     firstNum = operate(firstNum, secondNum, multiplyFn);
                 } else if (firstOperator === '/') {
-                    firstNum = operate(firstNum, secondNum, divideFn);
+                    if (secondNum === '0') {
+                        showResult.textContent = 'Oop! No ';
+                        return;
+                    } else {
+                        firstNum = operate(firstNum, secondNum, divideFn);
+                    }
                 }
                 showResult.textContent = firstNum;
                 exprDisplay += `${secondNum} ${operator} `;
@@ -112,14 +136,14 @@ op2El.forEach((op2) => {
 // Equals operator
 keyEqualEl.addEventListener('click', function () {
     if (firstNum && firstNum.toString().includes('√')) {
-        firstNum = sqrtFn(firstNum.split(' ').slice(-1)[0]);
+        firstNum = sqrtFn(firstNum.slice(1));
         showResult.textContent = firstNum;
     }
 
     if (firstNum && secondNum) {
         if (secondNum.toString().includes('√')) {
             let initialSqrtVal = secondNum;
-            secondNum = sqrtFn(secondNum.split(' ').slice(-1)[0]);
+            secondNum = sqrtFn(secondNum.slice(1));
             if (operator === '+') {
                 firstNum = operate(firstNum, secondNum, addFn);
             } else if (operator === '-') {
@@ -145,7 +169,12 @@ keyEqualEl.addEventListener('click', function () {
             } else if (operator === 'x') {
                 firstNum = operate(firstNum, secondNum, multiplyFn);
             } else if (operator === '/') {
-                firstNum = operate(firstNum, secondNum, divideFn);
+                if (secondNum === '0') {
+                    showResult.textContent = 'Oop! No ';
+                    return;
+                } else {
+                    firstNum = operate(firstNum, secondNum, divideFn);
+                }
             }
             showResult.textContent = firstNum;
             exprDisplay += `${secondNum} =`;
@@ -160,12 +189,14 @@ keyEqualEl.addEventListener('click', function () {
 // Square root
 keySqrtEl.addEventListener('click', function () {
     if (operator) {
-        secondNum = `√ `;
+        secondNum = `√`;
         toggleEnabling();
+
         showResult.textContent = secondNum;
     } else {
-        firstNum = `√ `;
+        firstNum = `√`;
         toggleEnabling();
+
         showResult.textContent = firstNum;
     }
     toggleEnabling();
@@ -197,7 +228,7 @@ keySignEl.addEventListener('click', function () {
     }
 });
 
-// Get all the number keys and  event listener
+// Get all the number keys
 const keys = document.querySelectorAll('.key-num');
 keys.forEach((numKey) => {
     toggleEnabling();
@@ -206,9 +237,11 @@ keys.forEach((numKey) => {
         if (operator) {
             secondNum += numKey.value;
             showResult.textContent = secondNum;
+            checkLengthStr(secondNum);
         } else {
             firstNum += numKey.value;
             showResult.textContent = firstNum;
+            checkLengthStr(firstNum);
         }
     });
     toggleEnabling();
@@ -226,11 +259,17 @@ keyDelEl.addEventListener('click', function () {
 });
 
 // Clear everything
-keyClearEl.addEventListener('click', function () {
-    firstNum = '';
-    operator = '';
-    secondNum = '';
-    exprDisplay = '';
-    showResult.textContent = '';
-    showExp.textContent = '';
-});
+keyClearEl.addEventListener('click', init);
+
+// To observe if digits are exceeding the allowed ch
+function checkLengthStr(num) {
+    if (num.length === 7) {
+        showResult.style.fontSize = '5rem';
+    } else if (num.length <= 11) {
+        showResult.style.fontSize = '4.5rem';
+    } else if (num.length <= 13) {
+        showResult.style.fontSize = '4rem';
+    } else if (num.length === 15) {
+        showResult.textContent = `That's the limit!`;
+    }
+}
