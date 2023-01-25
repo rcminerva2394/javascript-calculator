@@ -9,6 +9,7 @@ let oprPattern = /[+-^x/]/g; // to find the first operator from the string
 const showExp = document.querySelector('.display-expression');
 const showResult = document.querySelector('.display-result');
 const displayTopEl = document.querySelector('.display-top');
+const keys = document.querySelectorAll('.key-num');
 const keyClearEl = document.querySelector('.key-clear');
 const keyDelEl = document.querySelector('.key-del');
 const keyEqualEl = document.querySelector('.key-equal');
@@ -22,8 +23,10 @@ const init = () => {
     secondNum = '';
     exprDisplay = '';
     showResult.textContent = 0;
+    showResult.style.fontSize = '6rem';
     showExp.textContent = '';
     keySqrtEl.disabled = false;
+    keys.forEach((key) => (key.disabled = false));
 };
 
 init();
@@ -36,8 +39,8 @@ const divideFn = (a, b) => a / b;
 const expFn = (a, b) => a ** b;
 const sqrtFn = (a) => Math.sqrt(+a);
 const changeSignFn = (a) => +a * -1;
-const toggleEnabling = function () {
-    op2El.forEach((el) => {
+const toggleEnabling = function (els) {
+    els.forEach((el) => {
         el.disabled = !el.disabled;
     });
 };
@@ -48,6 +51,8 @@ op2El.forEach((op2) => {
     op2.addEventListener('click', () => {
         operator = op2.value;
         keySqrtEl.disabled = false; // to allow using square root every after an operator is pressed
+        isOverflow();
+
         // Check if firstNum is given or not
         if (firstNum && !secondNum) {
             showResult.textContent = firstNum;
@@ -130,11 +135,13 @@ op2El.forEach((op2) => {
                 secondNum = '';
             }
         }
+        keys.forEach((key) => (key.disabled = false));
     });
 });
 
 // Equals operator
 keyEqualEl.addEventListener('click', function () {
+    isOverflow();
     if (firstNum && firstNum.toString().includes('√')) {
         firstNum = sqrtFn(firstNum.slice(1));
         showResult.textContent = firstNum;
@@ -190,16 +197,15 @@ keyEqualEl.addEventListener('click', function () {
 keySqrtEl.addEventListener('click', function () {
     if (operator) {
         secondNum = `√`;
-        toggleEnabling();
+        toggleEnabling(op2El);
 
         showResult.textContent = secondNum;
     } else {
         firstNum = `√`;
-        toggleEnabling();
-
+        toggleEnabling(op2El);
         showResult.textContent = firstNum;
     }
-    toggleEnabling();
+    toggleEnabling(op2El);
 });
 
 // Decimal point
@@ -228,23 +234,22 @@ keySignEl.addEventListener('click', function () {
     }
 });
 
-// Get all the number keys
-const keys = document.querySelectorAll('.key-num');
+// Get all the numbers
 keys.forEach((numKey) => {
-    toggleEnabling();
+    toggleEnabling(op2El);
     numKey.addEventListener('click', () => {
         // check if operator is given, if so, set the number to secondNum
+
         if (operator) {
             secondNum += numKey.value;
             showResult.textContent = secondNum;
-            checkLengthStr(secondNum);
         } else {
             firstNum += numKey.value;
             showResult.textContent = firstNum;
-            checkLengthStr(firstNum);
         }
+        isOverflow();
     });
-    toggleEnabling();
+    toggleEnabling(op2El);
 });
 
 // Deleting one digit or erasing a digit
@@ -261,15 +266,14 @@ keyDelEl.addEventListener('click', function () {
 // Clear everything
 keyClearEl.addEventListener('click', init);
 
-// To observe if digits are exceeding the allowed ch
-function checkLengthStr(num) {
-    if (num.length === 7) {
-        showResult.style.fontSize = '5rem';
-    } else if (num.length <= 11) {
-        showResult.style.fontSize = '4.5rem';
-    } else if (num.length <= 13) {
+// To check if text overflowing
+const isOverflow = () => {
+    if (showResult.clientWidth > 270 && showResult <= 280) {
         showResult.style.fontSize = '4rem';
-    } else if (num.length === 15) {
-        showResult.textContent = `That's the limit!`;
+    } else if (showResult.clientWidth > 280) {
+        showResult.style.fontSize = '3rem';
+    } else if (showResult.textContent.length === 14) {
+        showResult.textContent = "Oop! That's the limit";
+        toggleEnabling(keys);
     }
-}
+};
