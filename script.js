@@ -31,7 +31,6 @@ const init = () => {
 
 init();
 
-const operate = (a, b, op) => op(+a, +b);
 const addFn = (a, b) => a + b;
 const subFn = (a, b) => a - b;
 const multiplyFn = (a, b) => a * b;
@@ -43,6 +42,24 @@ const toggleEnabling = function (els) {
     els.forEach((el) => {
         el.disabled = !el.disabled;
     });
+};
+
+const calculate = (operator) => {
+    let a = +firstNum;
+    let b = +secondNum;
+
+    switch (operator) {
+        case '+':
+            return addFn(a, b);
+        case '-':
+            return subFn(a, b);
+        case '^':
+            return expFn(a, b);
+        case 'x':
+            return multiplyFn(a, b);
+        case '/':
+            return divideFn(a, b);
+    }
 };
 
 // Math Operators that accept two operands (+, - , * , /, ^)
@@ -94,41 +111,19 @@ op2El.forEach((op2) => {
                     .slice(1, 2)[0];
                 console.log(firstOperator);
                 // Check what operator and the result is kept to first num in order to track the current result of all operations applied
-                if (firstOperator === '+') {
-                    firstNum = operate(firstNum, secondNum, addFn);
-                    console.log(firstNum);
-                } else if (firstOperator === '-') {
-                    firstNum = operate(firstNum, secondNum, subFn);
-                } else if (firstOperator === '^') {
-                    firstNum = operate(firstNum, secondNum, expFn);
-                } else if (firstOperator === 'x') {
-                    firstNum = operate(firstNum, secondNum, multiplyFn);
-                } else if (firstOperator === '/') {
-                    firstNum = operate(firstNum, secondNum, divideFn);
-                }
+                firstNum = calculate(firstOperator);
                 showResult.textContent = firstNum;
                 showExp.textContent = exprDisplay;
                 secondNum = '';
-                console.log(firstNum);
             } else if (secondNum.includes('√') === false) {
                 // Always operate the first operation first, do it by extracting the last operator from the expression
                 let firstOperator = exprDisplay.trim().split('').slice(-1)[0];
-                if (firstOperator === '+') {
-                    firstNum = operate(firstNum, secondNum, addFn);
-                } else if (firstOperator === '-') {
-                    firstNum = operate(firstNum, secondNum, subFn);
-                } else if (firstOperator === '^') {
-                    firstNum = operate(firstNum, secondNum, expFn);
-                } else if (firstOperator === 'x') {
-                    firstNum = operate(firstNum, secondNum, multiplyFn);
-                } else if (firstOperator === '/') {
-                    if (secondNum === '0') {
-                        showResult.textContent = 'Oop! No ';
-                        return;
-                    } else {
-                        firstNum = operate(firstNum, secondNum, divideFn);
-                    }
+                if (secondNum === '0') {
+                    showResult.textContent = 'Oops! No!';
+                    return;
                 }
+                firstNum = calculate(firstOperator);
+                console.log(firstNum);
                 showResult.textContent = firstNum;
                 exprDisplay += `${secondNum} ${operator} `;
                 showExp.textContent = exprDisplay;
@@ -146,43 +141,21 @@ keyEqualEl.addEventListener('click', function () {
         firstNum = sqrtFn(firstNum.slice(1));
         showResult.textContent = firstNum;
     }
-
     if (firstNum && secondNum) {
         if (secondNum.toString().includes('√')) {
             let initialSqrtVal = secondNum;
             secondNum = sqrtFn(secondNum.slice(1));
-            if (operator === '+') {
-                firstNum = operate(firstNum, secondNum, addFn);
-            } else if (operator === '-') {
-                firstNum = operate(firstNum, secondNum, subFn);
-            } else if (operator === '^') {
-                firstNum = operate(firstNum, secondNum, expFn);
-            } else if (operator === 'x') {
-                firstNum = operate(firstNum, secondNum, multiplyFn);
-            } else if (operator === '/') {
-                firstNum = operate(firstNum, secondNum, divideFn);
-            }
+            firstNum = calculate(operator);
             showResult.textContent = firstNum;
             exprDisplay += `${initialSqrtVal} =`;
             showExp.textContent = exprDisplay;
             secondNum = '';
         } else if (secondNum.toString().includes('√') == false) {
-            if (operator === '+') {
-                firstNum = operate(firstNum, secondNum, addFn);
-            } else if (operator === '-') {
-                firstNum = operate(firstNum, secondNum, subFn);
-            } else if (operator === '^') {
-                firstNum = operate(firstNum, secondNum, expFn);
-            } else if (operator === 'x') {
-                firstNum = operate(firstNum, secondNum, multiplyFn);
-            } else if (operator === '/') {
-                if (secondNum === '0') {
-                    showResult.textContent = 'Oop! No ';
-                    return;
-                } else {
-                    firstNum = operate(firstNum, secondNum, divideFn);
-                }
+            if (secondNum === '0') {
+                showResult.textContent = 'Oops! No!';
+                return;
             }
+            firstNum = calculate(operator);
             showResult.textContent = firstNum;
             exprDisplay += `${secondNum} =`;
             showExp.textContent = exprDisplay;
@@ -239,7 +212,6 @@ keys.forEach((numKey) => {
     toggleEnabling(op2El);
     numKey.addEventListener('click', () => {
         // check if operator is given, if so, set the number to secondNum
-
         if (operator) {
             secondNum += numKey.value;
             showResult.textContent = secondNum;
