@@ -1,9 +1,11 @@
 # JavaScript Calculator
 
+Refactored calculator using ES6 Classes with immediate execution of input logic.
+
 Functionalities:
 
--   Common operations (addition, subtraction, multiplication, division)
--   Additional operations (square root, exponent, plus/minus sign, delete last digit)
+- Common operations (addition, subtraction, multiplication, division)
+- Additional operations (square root, exponent, plus/minus sign, delete last digit)
 
 ## Design Credit
 
@@ -14,4 +16,4 @@ in which the design is from [Jaroslav Getmanapp](https://dribbble.com/shots/2334
 
 ## Motivation
 
--   To practice Vanilla JS by creating smaller apps.
+- To practice Vanilla JS by creating smaller apps.
