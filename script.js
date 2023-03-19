@@ -16,7 +16,6 @@ class Calculator {
     this.operator ? (this.secondOperand += num) : (this.firstOperand += num);
     this.result = this.operator ? this.secondOperand : this.firstOperand;
     this.showResult();
-    console.log(this);
   }
 
   setOperator(op) {
@@ -26,11 +25,13 @@ class Calculator {
         if (this.firstOperand.toString().includes('√')) {
           this.checkIfSquareR();
         } else if (!this.firstOperand.toString().includes('√')) {
-          this.expression += this.expression.endsWith('=')
-            ? ` ${this.result} ${op}`
-            : ` ${this.expression.trim().slice(0, -1)} ${op}`;
+          this.expression.endsWith('=')
+            ? (this.expression += ` ${this.result} ${op}`)
+            : (this.expression = ` ${this.expression
+                .trim()
+                .slice(0, -1)} ${op}`);
         }
-      } else if (this.firstOperand && this.secondOperand) {
+      } else if (this.firstOperand && this.secondOperand !== '√') {
         this.expression += ` ${this.secondOperand} ${op}`;
         if (this.secondOperand.toString().includes('√')) {
           this.secondOperand = this.operateSquareR(this.secondOperand.slice(1));
@@ -40,7 +41,7 @@ class Calculator {
           this.operator = op;
         }
       }
-    } else if (!this.operator) {
+    } else if (!this.operator && this.firstOperand !== '√') {
       this.operator = op;
       this.expression = `${this.firstOperand} ${op}`;
       if (this.firstOperand.toString().includes('√')) {
@@ -129,6 +130,7 @@ class Calculator {
       }
     }
     this.showResult();
+    console.log(this);
   }
 
   showResult() {
@@ -156,7 +158,6 @@ class Calculator {
     this.result = '';
     this.showExpression();
     this.showResult();
-    console.log(this);
   }
 
   showExpression() {
@@ -165,7 +166,6 @@ class Calculator {
 }
 
 const calculator = new Calculator();
-console.log(calculator);
 
 // Set the operands (nums)
 document.querySelectorAll('.key-num').forEach((keyNum) => {
